@@ -1,5 +1,5 @@
 
-let nota = 60
+let nota = 75;
 
 if( nota > 0 )
 {
@@ -11,16 +11,15 @@ if( nota > 0 )
 
 }else if(nota >= 75 && nota <= 89)
     {
-        console.log("Bien")
+        console.log("Bien 😊")
 }else if(nota >= 60 && nota <= 74)
     {
         console.log("Suficiente")
 }
-if( nota < 60)
-    {
-        console.log( "No Aprueba" )  
-    }
-//True, Suficiente
+else{
+    console.log("No Aprueba :(")
+}
+//True, Bien😊
 
 
 //var
