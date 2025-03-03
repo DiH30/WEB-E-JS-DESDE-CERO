@@ -4,8 +4,8 @@ const charLength = document.querySelector("#charLength")
 const lengthRange = document.querySelector("#lengthRange")
 
 lengthRange.addEventListener("change", function (e) {
-    charLength.textContent = e.currentTarget.value
-})
+    charLength.textContent = e.currentTarget.value;
+});
 
 //2.
 
@@ -14,9 +14,10 @@ const generateButton = document.querySelector("#generateButton");
 const copyButton = document.querySelector("#copyButton");
 const message = document.querySelector("#message");
 
-//5. Generar arrays para letters, numbers symbols
+//5. Generar arrays para letters, numbers, symbols
 
-const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+const lettersLowercase = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const lettersUppercase = lettersLowercase.map(letter => letter.toUpperCase()); // Generar las letras mayúsculas
 const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 const symbols = [
     '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
@@ -33,58 +34,83 @@ const utils = {
         return Math.floor( Math.random()* (max - min + 1) + min) //establecer el rango
     },
     //Arranca el método
-    getCharsFromArray:function(array, num){
+    getCharsFromArray: function (array, num){
       let chars = ""
       for (let i = 0; i < num; i++) {
-        const randNumber = utils.generateRandomBetween(0, array.length-1)
+        const randNumber = utils.generateRandomBetween(0, array.length - 1);
+        chars += array[randNumber];
         
-        if( typeof array[randNumber] === "string"){
-            randNumber % 2 === 0 ? chars += array[randNumber].toLowerCase() : chars
-            += array[randNumber].toUpperCase()
-        }else{
-            chars += array[randNumber]
-        }
-      }//cada vuelta va a estar generando un valor diferente
-      return chars
     }
+    return chars;
 }
+};  
 
-
-
-//-3. Evento y la función del botón generate
+//3. Evento y la función del botón generate
 
 function generatePassword (){
 
 //4. Capturar elementos que condicionan la password
-    const passLength = lengthRange.value
+    const passLength = lengthRange.value;  
+    const includeUppercaseLetters = document.querySelector("#uppercase").checked; 
+    const includeLowercaseLetters = document.querySelector("#lowercase").checked; // Agregado para minúsculas
     const includeNumbers = document.querySelector("#numbers").checked
     const includeSymbols = document.querySelector("#symbols").checked
-
+   
 //7. Guardar la contraseña generada
 
 let tempPassword =""
 
-//Si el check number es true
-if(includeNumbers){
-    tempPassword += utils.getCharsFromArray(numbers, utils.generateRandomBetween(3, passLength/3))
-}//+= tomar lo que ya tiene y empieza a tomar mas cosas
+// Calcular cuántos caracteres de cada tipo se necesitan
+let selectedTypes = 0;
 
-    if(includeSymbols){
-        tempPassword += utils.getCharsFromArray(symbols, utils.generateRandomBetween(3, passLength/3))//numero de veces que se va a ejecutar
-    }//+= tomar lo que ya tiene y empieza a tomar mas cosas
+if (includeNumbers) selectedTypes++;
+if (includeSymbols) selectedTypes++;
+if (includeUppercaseLetters) selectedTypes++;
+if (includeLowercaseLetters) selectedTypes++;
+// Asegurarse de no exceder la longitud total de la contraseña
+const charsPerType = Math.floor(passLength / selectedTypes); // Dividir la longitud entre los tipos seleccionados
 
-//8. Añadir letras a la temPassword
-    tempPassword += utils.getCharsFromArray(letters, passLength - tempPassword.length)
+// Verificar que al menos un carácter de cada tipo sea añadido si está seleccionado
+if (includeNumbers) {
+    tempPassword += utils.getCharsFromArray(numbers, charsPerType); 
+}
+if (includeSymbols) {
+    tempPassword += utils.getCharsFromArray(symbols, charsPerType); 
+}
+if (includeUppercaseLetters) {
+    tempPassword += utils.getCharsFromArray(lettersUppercase, charsPerType); 
+}
+if (includeLowercaseLetters) {
+    tempPassword += utils.getCharsFromArray(lettersLowercase, charsPerType); 
+}
 
-//9. Para imprimir en pantalla una contraseña que alterne el orden de números, letras y símbolos.
+// Si la longitud de la contraseña aún no es la deseada, añadir más caracteres aleatorios
+let remainingLength = passLength - tempPassword.length;
 
+// Añadir caracteres adicionales aleatorios si es necesario
+if (remainingLength > 0) {
+    let possibleChars = [];
 
-    //console.log(tempPassword, passLength-tempPassword.length)
+    if (includeLowercaseLetters) possibleChars = possibleChars.concat(lettersLowercase);
+    if (includeUppercaseLetters) possibleChars = possibleChars.concat(lettersUppercase);
+    if (includeNumbers) possibleChars = possibleChars.concat(numbers);
+    if (includeSymbols) possibleChars = possibleChars.concat(symbols);
+
+    tempPassword += utils.getCharsFromArray(possibleChars, remainingLength);
+}
+
+//8. Mezclar el resultado aleatoriamente
     
+    tempPassword = tempPassword.split("").sort(() => Math.random() - 0.5 ).join("");
+
     console.log( tempPassword.split("").sort( () => Math.random - 0.5).join("") ) 
-
-    passwordOutput.value = tempPassword.split("").sort( () => Math.random() - 0.5 ).join("")
     
+    //console.log(tempPassword, passLength-tempPassword.length)
+
+//9. Mostrar la contraseña generada 
+    
+    passwordOutput.value = tempPassword;
+
     // .split() Separa los elementos en un array 
     //.sort() Analiza lo que hay dentro de un array, si el primer elemento es menor que el segundo da un valor negativo, recorre todod el array y compara.
     //.join() convierte a string
@@ -92,7 +118,7 @@ if(includeNumbers){
 }
 
 
-generateButton.addEventListener("click", generatePassword)
+generateButton.addEventListener("click", generatePassword);
 
 
 //10. Función para copiar la contraseña
@@ -119,6 +145,11 @@ function copiarPassword() {
 // Añadimos el evento de clic al botón
 copyButton.addEventListener("click",copiarPassword)
 
-//[V4-D1P>1P
-//+91)0,
-//_7-"uFq5-N7s6-6"B
+//Character Length 0
+//
+//Character Length 2
+// 4i 
+//Character Length 11
+// L/O45\ve;[k 
+//Character Length 20
+// 4Bs7Tm22cJ^rLOe?3!%/
